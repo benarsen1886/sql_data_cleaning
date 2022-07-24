@@ -1,0 +1,78 @@
+
+-- A view of the loaded tables
+SELECT *
+FROM `Fitbit.daily_activity`;
+
+SELECT *
+FROM `Fitbit.sleep_day`;
+
+SELECT *
+FROM `Fitbit.weight`;
+
+-- DATA CLEANING
+-- Verifying the number of unique ids
+
+SELECT COUNT(DISTINCT(id))
+FROM `Fitbit.daily_activity`;
+
+SELECT COUNT(DISTINCT(id))
+FROM `Fitbit.sleep_day`;
+
+SELECT COUNT(DISTINCT(id))
+FROM `Fitbit.weight`;
+
+-- checking for duplicates
+SELECT Id, SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeinBed, COUNT(1)
+FROM `Fitbit.sleep_day`
+GROUP BY Id, SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeinBed
+HAVING COUNT(1) > 1;
+
+
+SELECT Id, ActivityDate, Totalsteps, TotalDistance, COUNT(1)
+FROM `Fitbit.daily_activity`
+GROUP BY Id, ActivityDate, Totalsteps, TotalDistance
+HAVING COUNT(1) > 1;
+
+-- drop duplicate rows
+Select Distinct ID,SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeInBed AS sleep
+FROM `Fitbit.sleep_day`;
+
+
+-- create a new table 
+
+CREATE TABLE Fitbit.Sleep  
+AS (Select DISTINCT ID,SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeInBed
+FROM `Fitbit.sleep_day`);
+
+-- preview of the newly created table
+SELECT *
+FROM `Fitbit.Sleep`;
+
+-- check if duplicates are removed
+SELECT Id, SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeinBed, COUNT(1)
+FROM `Fitbit.Sleep`
+GROUP BY Id, SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeinBed
+HAVING COUNT(1) > 1;
+
+--REFORMATTING DATE
+UPDATE `Fitbit.daily_activity`
+SET ActivityDate = STR_TO_DATE (ActivityDate,'%m%d%y');
+
+UPDATE `Fitbit.Sleep`
+SET SleepDay = STR_TO_DATE(SleepDay, '%m/%d/%Y');
+
+-- Checking for NULLS
+SELECT *, COUNT(*)
+FROM `Fitbit.daily_activity`
+WHERE Id IS NULL;
+
+SELECT *, COUNT(*)
+FROM `Fitbit.Sleep`
+WHERE Id IS NULL;
+
+-- A preview of the cleaned data
+SELECT *
+FROM `Fitbit.daily_activity`;
+
+SELECT *
+FROM `Fitbit.Sleep`;
